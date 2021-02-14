@@ -9,8 +9,8 @@ class EvolutionaryAlgorithm:
     def __init__(self):
         self.popSize = 30
         self.offsprings = 10
-        self.generations = 8000
-        self.mutationRate = 0.7
+        self.generations = 100
+        self.mutationRate = 0.5
         self.iterations = 10
         self.fitness = None
         self.generations_score = [[] for _ in range(self.generations)]
@@ -29,65 +29,76 @@ class EvolutionaryAlgorithm:
         return parent1, parent2
     
     # EA Cycle
+
     def cycle(self, maximise):
-        generations = 0
-        chromosomes = self.initialPopulation() 
-        while generations < self.generations:
-
-            if generations % 250 == 0:
-                print('Generation', generations+1)
-                for x in chromosomes:
-                    fit = min([self.computeFitness(i) for i in chromosomes])
-                    if self.computeFitness(x) == fit:
-                        x.img.save('MonaLisa'+str(generations)+'.png', 'PNG')
-                        print("Fitness:", fit)
-                        break
-
+        iters = []
+        for _ in range(self.iterations):
+            generations = 0
+            chromosomes = self.initialPopulation() 
             # compute fitness of each individual in population
             self.fitness = [self.computeFitness(indv) for indv in chromosomes]
-            # print('Generation', generations+1)
-            for _ in range(self.offsprings//2):
-                # print("Parent Selection")
-                # parent selection
-                parents = self.truncation(chromosomes, maximise, 2)
-                parent1, parent2 = parents[0], parents[1]
-                # cross over
-                offspring1, offspring2  = self.crossover(parent1, parent2)
-                # add new offsprings to population
-                chromosomes.append(offspring1)
-                chromosomes.append(offspring2)
-                # compute fitness of new offsprings
-                self.fitness.append(self.computeFitness(offspring1))
-                self.fitness.append(self.computeFitness(offspring2))
-                # mutation
-                if random.random() < 0.5:
-                    chromosomes = self.mutation(chromosomes)
-            # survivor selection
-            # print("Survivor Selection")
-            chromosomes = self.truncation(chromosomes, maximise, self.popSize)
-            # compute fitness of each individual in population
-            self.fitness = [self.computeFitness(indv) for indv in chromosomes]
-            if maximise:
-                BFS = max(self.fitness)
-            else:
-                BFS = min(self.fitness)
-            AFS = sum(self.fitness)/len(self.fitness)
-            self.generations_score[generations].append((BFS, AFS))
-            # print(min(self.fitness))
-            generations +=1
-        # self.plot_graph()
+            scores = []
+            while generations < self.generations:
+                # if generations % 250 == 0:
+                #     print('Generation', generations+1)
+                #     for x in chromosomes:
+                #         fit = min([self.computeFitness(i) for i in chromosomes])
+                #         if self.computeFitness(x) == fit:
+                #             x.img.save('MonaLisa'+str(generations)+'.png', 'PNG')
+                #             print("Fitness:", fit)
+                #             break
+                # print('Generation', generations+1)
+                for _ in range(self.offsprings//2):
+                    # print("Parent Selection")
+                    # parent selection
+                    parents = self.random(chromosomes, 2)
+                    parent1, parent2 = parents[0], parents[1]
+                    # cross over
+                    offspring1, offspring2  = self.crossover(parent1, parent2)
+                    # add new offsprings to population
+                    chromosomes.append(offspring1)
+                    chromosomes.append(offspring2)
+                    # compute fitness of new offsprings
+                    self.fitness.append(self.computeFitness(offspring1))
+                    self.fitness.append(self.computeFitness(offspring2))
+                    # mutation
+                    if random.random() < 0.5:
+                        chromosomes = self.mutation(chromosomes)
+                # survivor selection
+                # print("Survivor Selection")
+                chromosomes = self.truncation(chromosomes, maximise, self.popSize)
+                # compute fitness of each individual in population
+                self.fitness = [self.computeFitness(indv) for indv in chromosomes]
+                if maximise:
+                    BFS = max(self.fitness)
+                else:
+                    BFS = min(self.fitness)
+                scores.append((BFS, sum(self.fitness)/len(self.fitness)))
+                generations +=1
+            iters.append(scores)
+        gen = 0
+        while gen != self.generations:
+            best = 0
+            for val in iters:
+                # print(len(val))
+                best += val[gen][0]
+                avg = val[gen][1]
+            best = best / len(iters)
+            self.generations_score[gen].append((best,avg))
+            gen +=1 
+        self.plot_graph()
 
 
     def plot_graph(self):
         BFS = [i[0][0] for i in self.generations_score]
         AFS = [i[0][1] for i in self.generations_score]
         generations = [i+1 for i in range(self.generations)]
-        plt.plot(generations, BFS, label="Best-so-far Fitness")
+        plt.plot(generations, BFS, label="Avg best-so-far Fitness")
         plt.plot(generations, AFS, label="Average Fitness")
-        plt.title("FPS and FPS")
+        plt.title("Random and Truncation")
         plt.xlabel('No. of generations')
         plt.ylabel('Fitness value')
-        plt.legend(loc="upper left")
+        plt.legend()
         plt.show()
         
 
