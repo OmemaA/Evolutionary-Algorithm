@@ -9,8 +9,8 @@ class EvolutionaryAlgorithm:
     def __init__(self):
         self.popSize = 30
         self.offsprings = 10
-        self.generations = 100
-        self.mutationRate = 0.5
+        self.generations = 8000
+        self.mutationRate = 0.7
         self.iterations = 10
         self.fitness = None
         self.generations_score = [[] for _ in range(self.generations)]
@@ -33,22 +33,23 @@ class EvolutionaryAlgorithm:
         generations = 0
         chromosomes = self.initialPopulation() 
         while generations < self.generations:
-            if generations % 500 == 0:
-                print("Saving image")
+
+            if generations % 250 == 0:
+                print('Generation', generations+1)
                 for x in chromosomes:
                     fit = min([self.computeFitness(i) for i in chromosomes])
                     if self.computeFitness(x) == fit:
-                        x.img.save('FBLogo'+str(generations)+'.png', 'PNG')
+                        x.img.save('MonaLisa'+str(generations)+'.png', 'PNG')
                         print("Fitness:", fit)
                         break
 
             # compute fitness of each individual in population
             self.fitness = [self.computeFitness(indv) for indv in chromosomes]
-            print('Generation', generations+1)
+            # print('Generation', generations+1)
             for _ in range(self.offsprings//2):
                 # print("Parent Selection")
                 # parent selection
-                parents = self.BT(chromosomes, maximise, 2)
+                parents = self.truncation(chromosomes, maximise, 2)
                 parent1, parent2 = parents[0], parents[1]
                 # cross over
                 offspring1, offspring2  = self.crossover(parent1, parent2)
@@ -64,13 +65,15 @@ class EvolutionaryAlgorithm:
             # survivor selection
             # print("Survivor Selection")
             chromosomes = self.truncation(chromosomes, maximise, self.popSize)
-            # if maximise:
-            #     BFS = max(self.fitness)
-            # else:
-            #     BFS = min(self.fitness)
-            # AFS = sum(self.fitness)/len(self.fitness)
-            # self.generations_score[generations].append((BFS, AFS))
-            print(min(self.fitness))
+            # compute fitness of each individual in population
+            self.fitness = [self.computeFitness(indv) for indv in chromosomes]
+            if maximise:
+                BFS = max(self.fitness)
+            else:
+                BFS = min(self.fitness)
+            AFS = sum(self.fitness)/len(self.fitness)
+            self.generations_score[generations].append((BFS, AFS))
+            # print(min(self.fitness))
             generations +=1
         # self.plot_graph()
 
@@ -81,7 +84,7 @@ class EvolutionaryAlgorithm:
         generations = [i+1 for i in range(self.generations)]
         plt.plot(generations, BFS, label="Best-so-far Fitness")
         plt.plot(generations, AFS, label="Average Fitness")
-        plt.title("BT and Truncation")
+        plt.title("FPS and FPS")
         plt.xlabel('No. of generations')
         plt.ylabel('Fitness value')
         plt.legend(loc="upper left")

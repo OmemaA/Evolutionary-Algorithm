@@ -60,23 +60,16 @@ class KP(EvolutionaryAlgorithm):
         offspring2.extend(parent1[rand_range:self.no_items])
         return offspring1, offspring2
 
-    def mutation(self, offspring1, offspring2):
-        offsprings = []
-        offsprings.append(offspring1)
-        offsprings.append(offspring2)
-        # calculate the number of mutations required
-        mutate_genes = int(len(offsprings) * self.mutationRate)
-        while mutate_genes:
-            # choose random gene and chromosome to perform mutation
-            chromosome = random.randint(0, 1)
-            gene = randint(0, len(offspring1)-1)
-            # if bit is 1 swap it to 0 and vice versa
-            if offsprings[chromosome][gene] == 0:
-                offsprings[chromosome][gene] = 1
-            else:
-                offsprings[chromosome][gene] = 0
-            mutate_genes -= 1
-        return offsprings[0], offsprings[1]
+    def mutation(self, population):
+        # choose random gene and chromosome to perform mutation
+        chromosome = random.randint(0, len(population) - 1)
+        gene = random.randint(0, len(population[0]) - 1)
+        # if bit is 1 swap it to 0 and vice versa
+        if population[chromosome][gene] == 0:
+            population[chromosome][gene] = 1
+        else:
+            population[chromosome][gene] = 0
+        return population
 
 
 kp = KP()
