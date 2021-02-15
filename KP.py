@@ -33,20 +33,11 @@ class KP(EvolutionaryAlgorithm):
 
     def initialPopulation(self):
         population = []
-        for i in range(self.popSize):
-            chromosome = []
-            weight = 0
-            chromosome = [0 for i in range(self.no_items)]
-            for j in range(self.no_items):
-                index = random.randrange(0, self.no_items)
-                # only valid solutions will be included
-                if chromosome[index] == 0:
-                    if weight + self.items[index][1] <= self.capacity:
-                        weight += self.items[index][1]
-                        chromosome[index] = 1
-                    else:
-                        break
-            population.append(chromosome)
+        for _ in range(self.popSize):
+            indiv = []
+            for _ in range(self.no_items):
+                indiv.append(random.randint(0, 1))
+            population.append(indiv)
         return population
 
     def crossover(self, parent1, parent2):

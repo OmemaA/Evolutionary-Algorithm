@@ -23,13 +23,16 @@ class TSP(EvolutionaryAlgorithm):
         population = []
         for _ in range(self.popSize):
             chromosomes = []
+            # randomly chooses cities from list to make path
             for _ in range(self.totalCities):
                 chromosomes = random.sample(self.citiesList, len(self.citiesList))
+            # appends all paths in population
             population.append(chromosomes)
         return population
 
     def computeFitness(self, path):
         size, fitness = 0, 0
+        # sum of Euclidean distances between each city in path
         while size < (self.totalCities-1):
             fitness += self.distance(path[size],path[size+1])
             size += 1
@@ -37,8 +40,8 @@ class TSP(EvolutionaryAlgorithm):
 
     def mutation(self, population):
         # Swap mutation
-        print("-------MUTATION --------")
         offspring1, offspring2 = randint(0, self.popSize), randint(0, self.popSize)
+        # randomly selects 4 indexes to swap offsprings
         index1 = random.randint(0, self.totalCities-1)
         index2 = random.randint(0, self.totalCities-1)
         index3 = random.randint(0, self.totalCities-1)
@@ -51,7 +54,6 @@ class TSP(EvolutionaryAlgorithm):
 
     def crossover(self, parent1, parent2):
         # Order 1 crossover
-        print("-------CROSS OVER --------")
         total = len(parent1)
         offspring1 = [None for i in range(total)]
         offspring2 = [None for i in range(total)]
@@ -60,6 +62,7 @@ class TSP(EvolutionaryAlgorithm):
         for i in range(start, end):
             offspring1[i], offspring2[i] = parent1[i], parent2[i]
         o1_idx, p1_idx, o2_idx, p2_idx = end, end, end, end
+        # fills remaining chromosomes starting from end of parents
         while offspring1[o1_idx] == None:
             if parent2[p2_idx] in offspring1:
                 p2_idx = (p2_idx+1) % total
@@ -69,6 +72,7 @@ class TSP(EvolutionaryAlgorithm):
                 continue
             offspring1[o1_idx] = parent2[p2_idx]
             offspring2[o2_idx] = parent1[p1_idx]
+            # finds unique chromosomes in parent
             o1_idx, o2_idx = (o1_idx+1) % total, (o2_idx+1) % total
             p1_idx, p2_idx = (p1_idx+1) % total, (p2_idx+1) % total
         return offspring1, offspring2
